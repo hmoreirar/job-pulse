@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     ENVIRONMENT: str = "development"
     API_V1_PREFIX: str = "/api/v1"
+    DATABASE_URL: str
 
 
 @lru_cache
