@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  # PostgreSQL database
+  # Uncomment when backend services are implemented:
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: jobpulse
+  #     POSTGRES_USER: jobpulse
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+
+  # Backend API
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - postgres
+
+  # Frontend application
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - backend
+
+  # Scraper workers
+  # scraper:
+  #   build: ./scraper
+  #   depends_on:
+  #     - postgres
+
+# volumes:
+#   postgres_data:

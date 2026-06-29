@@ -1,0 +1,17 @@
+[project]
+name = "jobpulse-scraper"
+version = "0.1.0"
+description = "JobPulse data collection workers"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
