@@ -8,7 +8,7 @@ REST API for the JobPulse platform. Built with Python and FastAPI.
 uv venv
 source .venv/bin/activate
 uv sync
-uv run uvicorn app.main:app --reload
+uv run uvicorn app.main:create_app --factory --reload
 ```
 
 Open http://localhost:8000/docs for interactive documentation.

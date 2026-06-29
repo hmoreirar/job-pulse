@@ -4,14 +4,15 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 
 engine = None
 async_session = None
 
 
-def create_engine():
-    settings = get_settings()
+def create_engine(settings: Settings | None = None):
+    if settings is None:
+        settings = get_settings()
     return create_async_engine(
         settings.DATABASE_URL,
         pool_pre_ping=True,
