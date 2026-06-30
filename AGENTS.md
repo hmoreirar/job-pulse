@@ -45,3 +45,24 @@ Instructions for AI assistants working on this project.
 
 - Every new feature must be integrated through the API router hierarchy (`main.py` should remain minimal and never contain endpoint definitions).
 - No endpoint without tests.
+
+## Status
+
+### Done
+- Scaffold: monorepo, .gitignore, LICENSE, docker-compose, pre-commit
+- Backend: FastAPI + create_app() factory, /api/v1/health endpoint
+- Persistence: SQLAlchemy 2 async, psycopg, Alembic async, PostgreSQL in Docker
+- Database engine: session.py (create_engine, get_db), lifespan with dispose
+- Tests: health (3), database connection (1) — all passing
+- Settings: DATABASE_URL required, injected via create_app(settings)
+- Declarative base: Base(DeclarativeBase) in app/db/base.py
+
+### Pending
+- ORM models (app/models/)
+- CRUD / repository layer
+- Additional endpoints (/jobs, /companies, etc.)
+- Frontend (React + Vite)
+- Scraper (Playwright)
+- Alembic migrations
+- Authentication
+- CI/CD pipelines
