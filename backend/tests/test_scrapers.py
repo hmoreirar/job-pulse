@@ -1,7 +1,5 @@
-import json
 from datetime import datetime, timezone
 from decimal import Decimal
-from unittest.mock import patch
 
 import pytest
 
@@ -226,7 +224,6 @@ class TestSalaryParsing:
 
 @pytest.mark.asyncio
 async def test_upsert_inserts_new_job(monkeypatch):
-    from sqlalchemy import text
     from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
     from app.models import target_metadata

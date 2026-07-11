@@ -65,3 +65,35 @@ class JobResponse(BaseModel):
 class JobList(BaseModel):
     items: list[JobResponse]
     total: int
+
+
+SORT_FIELDS = frozenset({
+    "posted_at",
+    "scraped_at",
+    "created_at",
+    "salary_min",
+    "salary_max",
+    "title",
+})
+
+
+class JobSearchFilters(BaseModel):
+    search: str | None = None
+    company_id: uuid.UUID | None = None
+    source: Source | None = None
+    employment_type: EmploymentType | None = None
+    experience_level: ExperienceLevel | None = None
+    is_active: bool | None = None
+    location: str | None = None
+    sort: str | None = None
+    order: str = "desc"
+    page: int = 1
+    page_size: int = 20
+
+
+class JobListResponse(BaseModel):
+    items: list[JobResponse]
+    total: int
+    page: int
+    page_size: int
+    pages: int
