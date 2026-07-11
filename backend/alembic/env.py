@@ -6,13 +6,12 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.config import Settings
+from app.models import target_metadata
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-target_metadata = None
 
 
 def get_database_url() -> str:
