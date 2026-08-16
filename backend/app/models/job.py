@@ -22,6 +22,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 
+def _enum_values(enum_cls: type[StrEnum]) -> list[str]:
+    return [member.value for member in enum_cls]
+
+
 class EmploymentType(StrEnum):
     FULL_TIME = "full_time"
     PART_TIME = "part_time"
@@ -74,15 +78,30 @@ class Job(Base):
     )
     currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
     employment_type: Mapped[EmploymentType | None] = mapped_column(
-        Enum(EmploymentType, name="employment_type", create_constraint=True),
+        Enum(
+            EmploymentType,
+            name="employment_type",
+            create_constraint=True,
+            values_callable=_enum_values,
+        ),
         nullable=True,
     )
     experience_level: Mapped[ExperienceLevel | None] = mapped_column(
-        Enum(ExperienceLevel, name="experience_level", create_constraint=True),
+        Enum(
+            ExperienceLevel,
+            name="experience_level",
+            create_constraint=True,
+            values_callable=_enum_values,
+        ),
         nullable=True,
     )
     source: Mapped[Source] = mapped_column(
-        Enum(Source, name="source", create_constraint=True),
+        Enum(
+            Source,
+            name="source",
+            create_constraint=True,
+            values_callable=_enum_values,
+        ),
         nullable=False,
     )
     external_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -108,6 +127,10 @@ class Job(Base):
     company: Mapped["Company"] = relationship(  # noqa: F821
         back_populates="jobs"
     )
+
+    @property
+    def company_name(self) -> str | None:
+        return self.company.name if self.company is not None else None
 
     __table_args__ = (
         UniqueConstraint("source", "external_id", name="uq_job_source_external_id"),

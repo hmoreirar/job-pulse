@@ -1,0 +1,249 @@
+:root {
+  color-scheme: light dark;
+  --bg: #0f172a;
+  --bg-elevated: #1e293b;
+  --bg-card: #16203a;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --accent: #38bdf8;
+  --accent-strong: #0ea5e9;
+  --danger: #f87171;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--bg-elevated), var(--bg));
+}
+
+.app-title {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 0.5px;
+}
+
+.app-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.job-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.job-filters-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.job-filters-input {
+  flex: 1 1 280px;
+}
+
+.job-filters-select {
+  flex: 1 1 160px;
+}
+
+.job-filters-input,
+.job-filters-select {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.job-filters-input:focus,
+.job-filters-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.job-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.job-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background-color: var(--bg-card);
+}
+
+.job-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.job-card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.job-card-source {
+  flex-shrink: 0;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--accent);
+  background-color: rgba(56, 189, 248, 0.12);
+}
+
+.job-card-company {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.job-card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0.25rem 0 0;
+}
+
+.job-card-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.job-card-meta-item dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.job-card-meta-item dd {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.job-card-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.job-card-link {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.job-card-link:hover {
+  text-decoration: underline;
+}
+
+.job-list-status {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.job-list-error {
+  color: var(--danger);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pagination-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pagination-button {
+  min-width: 2.25rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-elevated);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.pagination-button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.pagination-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-button-active {
+  border-color: var(--accent-strong);
+  background-color: var(--accent-strong);
+  color: #fff;
+}
+
+.pagination-ellipsis {
+  color: var(--text-muted);
+}
+
+.pagination-total {
+  margin-left: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .job-card-meta {
+    grid-template-columns: 1fr;
+  }
+}

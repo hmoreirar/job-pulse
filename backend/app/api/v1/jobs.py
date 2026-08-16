@@ -29,7 +29,8 @@ async def create_job(
     data: JobCreate,
     repo: JobRepository = Depends(get_job_repo),
 ):
-    return await repo.create(data)
+    job = await repo.create(data)
+    return await repo.get(job.id)
 
 
 @router.get("", response_model=JobListResponse)

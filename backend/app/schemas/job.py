@@ -44,6 +44,7 @@ class JobResponse(BaseModel):
 
     id: uuid.UUID
     company_id: uuid.UUID
+    company_name: str | None = None
     title: str
     description: str | None = None
     location: str | None = None

@@ -21,6 +21,15 @@ SORT_COLUMN_MAP = {
 
 
 class JobRepository(RepositoryBase[Job, JobCreate, JobUpdate]):
+    async def get(self, id: uuid.UUID) -> Job | None:
+        stmt = (
+            select(Job)
+            .options(selectinload(Job.company))
+            .where(Job.id == id)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def get_by_company(self, company_id: uuid.UUID) -> list[Job]:
         stmt = select(Job).where(Job.company_id == company_id)
         result = await self.db.execute(stmt)
