@@ -85,6 +85,9 @@ class JobSearchFilters(BaseModel):
     experience_level: ExperienceLevel | None = None
     is_active: bool | None = None
     location: str | None = None
+    salary_min: Decimal | None = None
+    salary_max: Decimal | None = None
+    posted_after: datetime | None = None
     sort: str | None = None
     order: str = "desc"
     page: int = 1

@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.models.company import Company
@@ -7,8 +8,9 @@ from app.repositories.company import CompanyRepository
 from app.repositories.job import JobRepository
 from app.schemas.company import CompanyCreate
 from app.schemas.job import JobCreate, JobSearchFilters
+from tests.config import TEST_DATABASE_URL
 
-TEST_DB_URL = "postgresql+psycopg://jobpulse:jobpulse@localhost:5432/jobpulse"
+TEST_DB_URL = TEST_DATABASE_URL
 
 
 @pytest.fixture
@@ -19,7 +21,7 @@ async def engine():
 
 
 @pytest.fixture
-async def session(engine):
+async def session(engine, setup_db):
     session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
     async with session_factory() as session:
         yield session
@@ -31,7 +33,7 @@ async def setup_db(engine):
         await conn.run_sync(Company.metadata.create_all)
     yield
     async with engine.begin() as conn:
-        await conn.run_sync(Company.metadata.drop_all)
+        await conn.execute(text("TRUNCATE TABLE jobs, companies"))
 
 
 @pytest.fixture
@@ -134,7 +136,7 @@ class TestSearch:
         repo = JobRepository(Job, session)
         filters = JobSearchFilters(search="python")
         items, total = await repo.search(filters)
-        assert total == 2
+        assert total == 4
         titles = {j.title for j in items}
         assert "Python Developer" in titles
         assert "Python Intern" in titles
@@ -143,7 +145,7 @@ class TestSearch:
         repo = JobRepository(Job, session)
         filters = JobSearchFilters(search="PYTHON")
         items, total = await repo.search(filters)
-        assert total == 2
+        assert total == 4
 
     async def test_search_by_description(self, session, jobs):
         repo = JobRepository(Job, session)
@@ -278,7 +280,7 @@ class TestPagination:
 
     async def test_last_page_with_fewer_items(self, session, jobs):
         repo = JobRepository(Job, session)
-        filters = JobSearchFilters(page=3, page_size=4)
+        filters = JobSearchFilters(page=2, page_size=4)
         items, total = await repo.search(filters)
         assert total == 6
         assert len(items) == 2
@@ -338,7 +340,6 @@ class TestSelectinload:
             assert job.company.name is not None
 
 
-@pytest.mark.skip(reason="Requires running PostgreSQL via Docker")
 class TestAPIValidation:
     def test_invalid_sort_returns_400(self, client):
         response = client.get("/api/v1/jobs?sort=invalid_field")

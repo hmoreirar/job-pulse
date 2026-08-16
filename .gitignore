@@ -9,6 +9,9 @@ dist/
 *.egg
 .venv/
 .uv/
+.coverage
+htmlcov/
+.pytest_cache/
 
 # -------------------------------
 # Node

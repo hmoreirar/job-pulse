@@ -1,4 +1,6 @@
 import uuid
+from datetime import datetime
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,6 +43,9 @@ async def list_jobs(
     experience_level: ExperienceLevel | None = Query(None),
     is_active: bool | None = Query(None),
     location: str | None = Query(None),
+    salary_min: Decimal | None = Query(None),
+    salary_max: Decimal | None = Query(None),
+    posted_after: datetime | None = Query(None),
     sort: str | None = Query(None),
     order: str = Query("desc"),
     repo: JobRepository = Depends(get_job_repo),
@@ -65,6 +70,9 @@ async def list_jobs(
         experience_level=experience_level,
         is_active=is_active,
         location=location,
+        salary_min=salary_min,
+        salary_max=salary_max,
+        posted_after=posted_after,
         sort=sort,
         order=order,
         page=page,

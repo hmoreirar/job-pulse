@@ -101,6 +101,15 @@ class JobRepository(RepositoryBase[Job, JobCreate, JobUpdate]):
         if filters.location:
             conditions.append(Job.location.ilike(f"%{filters.location}%"))
 
+        if filters.salary_min is not None:
+            conditions.append(Job.salary_min >= filters.salary_min)
+
+        if filters.salary_max is not None:
+            conditions.append(Job.salary_max <= filters.salary_max)
+
+        if filters.posted_after is not None:
+            conditions.append(Job.posted_at >= filters.posted_after)
+
         # Count query
         count_stmt = select(func.count()).select_from(Job)
         if needs_company_join:

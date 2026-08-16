@@ -66,7 +66,7 @@ class GetOnBoardScraper(BaseScraper):
         self._seniority_map = mapping
         return mapping
 
-    def fetch(self) -> list[dict]:
+    def fetch(self) -> list[dict]:  # pragma: no cover - requires real network
         all_jobs: list[dict] = []
         page = 1
         total_pages = 1
@@ -171,7 +171,7 @@ class GetOnBoardScraper(BaseScraper):
         return result
 
 
-def main() -> None:
+def main() -> None:  # pragma: no cover - CLI entry point
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s  %(levelname)-8s  %(message)s",

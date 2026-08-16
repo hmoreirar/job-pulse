@@ -21,10 +21,6 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     op.execute(sa.text("CREATE SCHEMA IF NOT EXISTS public"))
 
-    op.execute("CREATE TYPE employment_type AS ENUM ('full_time', 'part_time', 'contract', 'freelance', 'internship')")
-    op.execute("CREATE TYPE experience_level AS ENUM ('intern', 'entry', 'junior', 'mid', 'senior', 'staff', 'lead', 'principal')")
-    op.execute("CREATE TYPE source AS ENUM ('linkedin', 'indeed', 'computrabajo', 'getonboard', 'glassdoor', 'remoteok', 'wellfound', 'greenhouse', 'lever', 'other')")
-
     op.create_table(
         "companies",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()")),

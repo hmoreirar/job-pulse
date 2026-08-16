@@ -9,6 +9,7 @@ from app.scrapers.getonboard import (
     _build_company_map,
     _strip_html,
 )
+from tests.config import TEST_DATABASE_URL
 
 SAMPLE_JOB = {
     "id": "desarrollador-python-empresa-tech-santiago",
@@ -224,14 +225,17 @@ class TestSalaryParsing:
 
 @pytest.mark.asyncio
 async def test_upsert_inserts_new_job(monkeypatch):
+    from sqlalchemy import select
     from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+    from sqlalchemy.orm import selectinload
 
     from app.models import target_metadata
+    from app.models.job import Job
     from app.scrapers.service import ScraperService
     from app.scrapers.schemas import JobData
 
     engine = create_async_engine(
-        "postgresql+psycopg://jobpulse:jobpulse@localhost:5432/jobpulse",
+        TEST_DATABASE_URL,
         echo=False,
     )
 
@@ -254,7 +258,9 @@ async def test_upsert_inserts_new_job(monkeypatch):
 
         await service.persist(data)
 
-        jobs = await service.job_repo.get_multi()
+        stmt = select(Job).options(selectinload(Job.company))
+        result = await session.execute(stmt)
+        jobs = list(result.scalars().all())
         assert len(jobs) == 1
         assert jobs[0].title == "Test Job"
         assert jobs[0].company.name == "Test Corp"
@@ -274,7 +280,7 @@ async def test_upsert_updates_existing_job(monkeypatch):
     from app.scrapers.schemas import JobData
 
     engine = create_async_engine(
-        "postgresql+psycopg://jobpulse:jobpulse@localhost:5432/jobpulse",
+        TEST_DATABASE_URL,
         echo=False,
     )
 
@@ -327,7 +333,7 @@ async def test_upsert_reuses_existing_company(monkeypatch):
     from app.scrapers.schemas import JobData
 
     engine = create_async_engine(
-        "postgresql+psycopg://jobpulse:jobpulse@localhost:5432/jobpulse",
+        TEST_DATABASE_URL,
         echo=False,
     )
 
@@ -361,3 +367,138 @@ async def test_upsert_reuses_existing_company(monkeypatch):
         await conn.run_sync(target_metadata.drop_all)
 
     await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_persist_with_empty_data(monkeypatch):
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+    from app.models import target_metadata
+    from app.scrapers.service import ScraperService
+
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(target_metadata.create_all)
+
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+    async with session_factory() as session:
+        service = ScraperService(session)
+        await service.persist([])
+        jobs = await service.job_repo.get_multi()
+        assert len(jobs) == 0
+
+    async with engine.begin() as conn:
+        await conn.run_sync(target_metadata.drop_all)
+
+    await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_upsert_without_external_id_always_inserts(monkeypatch):
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+    from app.models import target_metadata
+    from app.scrapers.service import ScraperService
+    from app.scrapers.schemas import JobData
+
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(target_metadata.create_all)
+
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+    data = [JobData(title="No Ext", company_name="NoExtCo", source=Source.GETONBOARD)]
+
+    async with session_factory() as session:
+        service = ScraperService(session)
+        await service.persist(data)
+        await service.persist(data)
+
+    async with session_factory() as session:
+        service = ScraperService(session)
+        jobs = await service.job_repo.get_multi()
+        assert len(jobs) == 2
+
+    async with engine.begin() as conn:
+        await conn.run_sync(target_metadata.drop_all)
+
+    await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_persist_skips_failed_items(monkeypatch):
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+    from app.models import target_metadata
+    from app.scrapers.service import ScraperService
+    from app.scrapers.schemas import JobData
+
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(target_metadata.create_all)
+
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+    async with session_factory() as session:
+        service = ScraperService(session)
+        original = service._resolve_company
+
+        async def _failing_resolve(item):
+            if item.title == "Bad":
+                raise RuntimeError("boom")
+            return await original(item)
+
+        monkeypatch.setattr(service, "_resolve_company", _failing_resolve)
+
+        await service.persist([
+            JobData(title="Good", company_name="GoodCo", source=Source.GETONBOARD, external_id="good-1"),
+            JobData(title="Bad", company_name="BadCo", source=Source.GETONBOARD, external_id="bad-1"),
+        ])
+
+        jobs = await service.job_repo.get_multi()
+        assert len(jobs) == 1
+        assert jobs[0].title == "Good"
+
+    async with engine.begin() as conn:
+        await conn.run_sync(target_metadata.drop_all)
+
+    await engine.dispose()
+
+
+def test_load_seniorities(monkeypatch):
+    import app.scrapers.getonboard as getonboard_module
+
+    scraper = GetOnBoardScraper()
+    fake_data = {
+        "data": [
+            {"id": 1, "type": "seniority", "attributes": {"name": "Intern"}},
+            {"id": 2, "type": "seniority", "attributes": {"name": "Senior"}},
+        ]
+    }
+    monkeypatch.setattr(getonboard_module, "_request", lambda url: fake_data)
+    result = scraper._load_seniorities()
+    assert result == {
+        1: ExperienceLevel.INTERN,
+        2: ExperienceLevel.SENIOR,
+    }
+
+
+def test_seniorities_are_cached(monkeypatch):
+    import app.scrapers.getonboard as getonboard_module
+
+    scraper = GetOnBoardScraper()
+    calls = {"count": 0}
+    fake_data = {"data": [{"id": 1, "type": "seniority", "attributes": {"name": "Intern"}}]}
+
+    def fake_request(url):
+        calls["count"] += 1
+        return fake_data
+
+    monkeypatch.setattr(getonboard_module, "_request", fake_request)
+    scraper._load_seniorities()
+    scraper._load_seniorities()
+    assert calls["count"] == 1

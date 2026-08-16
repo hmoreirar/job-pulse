@@ -17,6 +17,7 @@ dev = [
     "pytest>=8.0",
     "httpx>=0.28.0",
     "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.ruff]
@@ -30,3 +31,14 @@ quote-style = "double"
 minversion = "8.0"
 testpaths = ["tests"]
 asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+]
